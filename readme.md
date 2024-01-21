@@ -3,6 +3,8 @@
 ## Database
 To remove dependency on local machine setup, Docker Postgres DB is used. Version 16.1 (ref: https://hub.docker.com/_/postgres)
 
+Note: there is no DB migration component (such as flyway) added, hence default table has to be created (`scripts/pg.sql`)
+
 ## docker pg setup:
 ```docker pull postgres:16.1```
 
@@ -33,3 +35,7 @@ If there is pg container with a given name remove it to start from scratch: `doc
 # Step 3 - Tagless-ish Final applied to business logic
 
 The only change is to decorate traits with F[_]
+
+# Step 4 - Http4s pushing out Playframework
+
+`api` folder from Playframework to delete and move business logic to regular `src` dir.
