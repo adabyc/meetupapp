@@ -21,3 +21,11 @@ If there is pg container with a given name remove it to start from scratch: `doc
 
 ### add new Item
 ```curl -X POST localhost:9000/api/v1/addnew -H 'Content-Type: application/json' -d '{"name":"new_item","flag":true}'```
+
+# Step 2 - Playframework with Tapir
+## API
+### get all Items
+`curl localhost:9000/api/v2/getall`
+
+### add new Item
+```curl -X POST localhost:9000/api/v2/addnew -H 'Content-Type: application/json' -d '{"name":"new_item","flag":true}'```

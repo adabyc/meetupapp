@@ -5,3 +5,5 @@
 
 GET     /api/v1/getall                     controllers.HomeController.getAll()
 POST    /api/v1/addnew                     controllers.HomeController.addNew()
+
+->      /api                               ab.api.ApiRouter

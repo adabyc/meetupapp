@@ -12,6 +12,7 @@ val PostgresVersion = "42.3.4"
 val SlickVersion = "3.3.3"
 val SlickPgVersion = "0.20.3"
 val CatsEffectVersion = "3.5.3"
+val TapirVersion = "1.9.6"
 
 libraryDependencies ++= Seq(
   guice,
@@ -22,7 +23,13 @@ libraryDependencies ++= Seq(
   "com.github.tminglei" %% "slick-pg" % SlickPgVersion,
 
   // cats
-
   "org.typelevel" %% "cats-effect" % CatsEffectVersion,
+
+  // tapir
+  "com.softwaremill.sttp.tapir" %% "tapir-play-server" % TapirVersion,
+  "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % TapirVersion,
+  "com.softwaremill.sttp.tapir" %% "tapir-json-circe"        % TapirVersion,
+
+  "io.circe"   %% "circe-generic"       % "0.14.6"
 )
 
