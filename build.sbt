@@ -1,35 +1,13 @@
-name := """MeetUpApp"""
-organization := "ab"
-version := "1.0-SNAPSHOT"
+import Dependencies.projectDependencies
 
+version := "1.0-SNAPSHOT"
 scalaVersion := "2.13.12"
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala)
-
-
-val PostgresVersion = "42.3.4"
-val SlickVersion = "3.3.3"
-val SlickPgVersion = "0.20.3"
-val CatsEffectVersion = "3.5.3"
-val TapirVersion = "1.9.6"
-
-libraryDependencies ++= Seq(
-  guice,
-  // DB
-  "org.postgresql" % "postgresql" % PostgresVersion,
-  "com.typesafe.slick" %% "slick" % SlickVersion,
-  "com.typesafe.slick" %% "slick-hikaricp" % SlickVersion,
-  "com.github.tminglei" %% "slick-pg" % SlickPgVersion,
-
-  // cats
-  "org.typelevel" %% "cats-effect" % CatsEffectVersion,
-
-  // tapir
-  "com.softwaremill.sttp.tapir" %% "tapir-play-server" % TapirVersion,
-  "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % TapirVersion,
-  "com.softwaremill.sttp.tapir" %% "tapir-json-circe"        % TapirVersion,
-
-  "io.circe"   %% "circe-generic"       % "0.14.6"
-)
-
+  .settings(
+    name := """MeetUpApp""",
+    organization := "ab",
+    libraryDependencies ++= projectDependencies,
+    addCompilerPlugin("org.typelevel" %% "kind-projector"     % "0.13.2" cross CrossVersion.full),
+    addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % "0.3.1")
+  )

@@ -2,13 +2,10 @@ package ab.api
 
 import ab.service.MyService
 import sttp.tapir.server.ServerEndpoint
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
 
-@Singleton
-class ServerEndpoints @Inject() (service: MyService[Future]) extends Endpoints {
+class ServerEndpoints[F[_]](service: MyService[F]) extends Endpoints {
 
-  val all: List[ServerEndpoint[Any, Future]] =
+  val all: List[ServerEndpoint[Any, F]] =
     addNewItemEndpoint.serverLogic(service.addNewItem) ::
       getAllItemsEndpoint.serverLogic(_ => service.getAllItems()) ::
       Nil

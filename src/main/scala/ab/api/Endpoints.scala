@@ -16,6 +16,7 @@ trait Endpoints {
 
   private lazy val apiV1Endpoint: PublicEndpoint[Unit, ErrorInfo, Unit, Any] =
     endpoint
+      .in("api")
       .in("v2")
       .errorOut(errorOutput)
 
