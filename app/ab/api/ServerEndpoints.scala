@@ -6,7 +6,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
-class ServerEndpoints @Inject() (service: MyService) extends Endpoints {
+class ServerEndpoints @Inject() (service: MyService[Future]) extends Endpoints {
 
   val all: List[ServerEndpoint[Any, Future]] =
     addNewItemEndpoint.serverLogic(service.addNewItem) ::

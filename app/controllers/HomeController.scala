@@ -8,7 +8,7 @@ import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class HomeController @Inject() (service: MyService, val controllerComponents: ControllerComponents)(implicit
+class HomeController @Inject() (service: MyService[Future], val controllerComponents: ControllerComponents)(implicit
     ec: ExecutionContext
 ) extends BaseController {
 

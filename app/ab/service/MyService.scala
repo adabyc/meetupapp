@@ -1,52 +1,63 @@
 package ab.service
 
 import ab.ApplicationException
-import ab.db.ItemDAO
+import ab.db.ItemDAOAlg
 import ab.model.{ErrorInfo, Item, NewItem}
+import cats.MonadError
+import cats.data.ValidatedNel
 import cats.implicits._
 import com.google.inject.ImplementedBy
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[MyServiceImpl])
-trait MyService {
-  def getAllItems(): Future[Either[ErrorInfo, Seq[Item]]]
+trait MyService[F[_]] {
+  def getAllItems(): F[Either[ErrorInfo, Seq[Item]]]
 
-  def addNewItem(newItem: NewItem): Future[Either[ErrorInfo, Item]]
+  def addNewItem(newItem: NewItem): F[Either[ErrorInfo, Item]]
 }
 
-@Singleton
-class MyServiceImpl @Inject() (dao: ItemDAO)(implicit ec: ExecutionContext) extends MyService {
+abstract class MyServiceInterpreter[F[_]](dao: ItemDAOAlg[F])(implicit ME: MonadError[F, Throwable])
+    extends MyService[F] {
 
-  override def getAllItems(): Future[Either[ErrorInfo, Seq[Item]]] =
-    dao.all().map(_.reverse.asRight[ErrorInfo])
-
-  override def addNewItem(newItem: NewItem): Future[Either[ErrorInfo, Item]] = {
+  def addNewItem(newItem: NewItem): F[Either[ErrorInfo, Item]] = {
     for {
       _ <- validate(newItem)
       processedNewItem <- processRequest(newItem)
       item <- persistNewItem(processedNewItem)
     } yield item.asRight[ErrorInfo]
   }.recoverWith { case e: ApplicationException =>
-    Future(ErrorInfo(e.getMessage).asLeft[Item])
+    ErrorInfo(e.getMessage).asLeft[Item].pure[F]
   }
 
-  private def validate(newItem: NewItem): Future[Unit] =
-    (validateName(newItem), validateFlag(newItem)) match {
-      case (Left(e1), Left(e2)) => Future.failed(new ApplicationException(s"$e1 $e2"))
-      case (Left(err), _)       => Future.failed(new ApplicationException(err))
-      case (_, Left(err))       => Future.failed(new ApplicationException(err))
-      case _                    => Future.unit
-    }
+  /** For presentation purpose Validated is not being used.
+    */
+  private def validate(newItem: NewItem): F[Unit] =
+    (validateName(newItem), validateFlag(newItem))
+      .mapN((_, _) => ())
+      .leftMap(errors => new ApplicationException(errors.mkString_(" & ")))
+      .liftTo[F]
 
-  private def validateName(newItem: NewItem): Either[String, Unit] =
-    Either.cond(newItem.name.length > 3, (), "Name too short")
-  private def validateFlag(newItem: NewItem): Either[String, Unit] =
-    Either.cond(newItem.flag, (), "Flag has to be set")
+  private def validateName(newItem: NewItem): ValidatedNel[String, Unit] =
+    if (newItem.name.length > 3) ().validNel
+    else "Name too short".invalidNel
 
-  private def processRequest(newItem: NewItem): Future[NewItem] = Future.successful {
-    newItem.copy(name = newItem.name.capitalize)
-  }
+  private def validateFlag(newItem: NewItem): ValidatedNel[String, Unit] =
+    if (newItem.flag) ().validNel
+    else "Flag has to be set".invalidNel
 
-  private def persistNewItem(newItem: NewItem): Future[Item] = dao.add(newItem)
+  private def processRequest(newItem: NewItem): F[NewItem] =
+    newItem.copy(name = newItem.name.capitalize).pure[F]
+
+  protected def persistNewItem(newItem: NewItem): F[Item]
+}
+
+@Singleton
+class MyServiceImpl @Inject() (dao: ItemDAOAlg[Future])(implicit ec: ExecutionContext)
+    extends MyServiceInterpreter[Future](dao) {
+
+  override def getAllItems(): Future[Either[ErrorInfo, Seq[Item]]] =
+    dao.all().map(_.reverse.asRight[ErrorInfo])
+
+  protected def persistNewItem(newItem: NewItem): Future[Item] = dao.add(newItem)
 }
