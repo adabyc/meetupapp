@@ -1,3 +1,5 @@
+package ab
+
 package object config {
 
   implicit class DoobieDbConfig(val dbCfg: DbConfig) {

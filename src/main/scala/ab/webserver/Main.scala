@@ -1,12 +1,12 @@
 package ab.webserver
 
 import ab.api.ServerEndpoints
+import ab.config.Cfg
 import ab.db.ItemDAO
 import ab.service.MyService
 import cats.effect.kernel.Resource
 import cats.effect.{ExitCode, IO, IOApp, Sync}
 import cats.implicits.catsSyntaxApplicativeId
-import config.Cfg
 import doobie.hikari.HikariTransactor
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
